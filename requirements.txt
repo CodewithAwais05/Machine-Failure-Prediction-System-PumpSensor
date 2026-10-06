@@ -1,0 +1,7 @@
+streamlit
+pandas
+numpy
+matplotlib
+scikit-learn
+pydantic>=2
+# kagglehub  # optional: auto-download of the dataset
