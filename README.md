@@ -14,7 +14,7 @@ Programming for AI · Section C, Artificial Intelligence · Team **NEXORA**
 
 **[Open the live dashboard](https://machine-failure-prediction-system-pumpsensor.streamlit.app/)**
 
-![Dashboard](docs/screenshots/01-dashboard.png)
+![Dashboard](docs/screenshots/1.png)
 
 </div>
 
@@ -190,33 +190,33 @@ The real file is relatively clean apart from missing values, so the sidebar togg
 
 **Dashboard**: KPI cards, live telemetry with rolling mean and failure-window breakdown.
 
-![Dashboard](docs/screenshots/01-dashboard.png)
+![Dashboard](docs/screenshots/1.png)
 
 **Signal conditioning and correlation**: raw versus validated stream, and the sensors most linked to failure.
 
-![Signal conditioning and correlation](docs/screenshots/02-signal-conditioning-correlation.png)
+![Signal conditioning and correlation](docs/screenshots/2.png)
 
 **Before vs After**: missing values, distributions and boxplots.
 
 | Missing values | Distributions |
 |---|---|
-| ![Missing values](docs/screenshots/03-missing-values.png) | ![Distributions](docs/screenshots/04-distributions.png) |
+| ![Missing values](docs/screenshots/3.png) | ![Distributions](docs/screenshots/4.png) |
 
-![Boxplots](docs/screenshots/05-boxplots.png)
+![Boxplots](docs/screenshots/5.png)
 
 | Single feature | Sensor stream |
 |---|---|
-| ![Single feature](docs/screenshots/06-single-feature.png) | ![Sensor stream](docs/screenshots/07-sensor-stream.png) |
+| ![Single feature](docs/screenshots/6.png) | ![Sensor stream](docs/screenshots/7.png) |
 
-![Summary table](docs/screenshots/08-summary-table.png)
+![Summary table](docs/screenshots/8.png)
 
 **Risk Inference**: editable sensor readings, colour-coded result and model summary.
 
-![Risk inference](docs/screenshots/09-risk-inference.png)
+![Risk inference](docs/screenshots/9.png)
 
 **Data & Report**: cleaning report and engineered data preview.
 
-![Data and report](docs/screenshots/10-data-report.png)
+![Data and report](docs/screenshots/10.png)
 
 ## Results
 
