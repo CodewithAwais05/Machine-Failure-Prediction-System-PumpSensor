@@ -1,7 +1,6 @@
 venv/
 .venv/
 __pycache__/
-*.pycdata/processed/
 data/maintenance.db
 __pycache__/
 *.pyc
