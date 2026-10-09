@@ -1,7 +1,22 @@
+<div align="center">
+
 # Predictive Maintenance and Machine Failure Prediction System
 
-**Phase 1: ETL + EDA Pipeline with a Streamlit Dashboard**
+**Phase 1: ETL + EDA pipeline, baseline failure-risk model and Streamlit dashboard**
+
 Programming for AI · Section C, Artificial Intelligence · Team **NEXORA**
+
+[![Live demo](https://img.shields.io/badge/Live%20demo-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://machine-failure-prediction-system-pumpsensor.streamlit.app/)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-HistGradientBoosting-F7931E?logo=scikitlearn&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)
+![Phase](https://img.shields.io/badge/Phase-1%20of%203-6B1E33)
+
+**[Open the live dashboard](https://machine-failure-prediction-system-pumpsensor.streamlit.app/)**
+
+![Dashboard](docs/screenshots/01-dashboard.png)
+
+</div>
 
 An end-to-end pipeline that turns raw industrial pump telemetry into validated, feature-engineered data, explores it with before / after analysis, and estimates the probability that the pump breaks within the next 24 hours. Everything runs inside one Streamlit application: the pipeline starts automatically when the app opens, and the dataset stays in the project backend (no upload needed).
 
@@ -15,12 +30,14 @@ An end-to-end pipeline that turns raw industrial pump telemetry into validated, 
 4. [Quick Start](#quick-start)
 5. [How the Pipeline Works](#how-the-pipeline-works)
 6. [Dashboard Pages](#dashboard-pages)
-7. [Configuration](#configuration)
-8. [Baseline Model](#baseline-model)
-9. [Deployment](#deployment)
-10. [Troubleshooting](#troubleshooting)
-11. [Roadmap](#roadmap)
-12. [Team](#team)
+7. [Results](#results)
+8. [Configuration](#configuration)
+9. [Baseline Model](#baseline-model)
+10. [Limitations and Planned Improvements](#limitations-and-planned-improvements)
+11. [Deployment](#deployment)
+12. [Troubleshooting](#troubleshooting)
+13. [Roadmap](#roadmap)
+14. [Team](#team)
 
 ---
 
@@ -31,7 +48,7 @@ An end-to-end pipeline that turns raw industrial pump telemetry into validated, 
 - **Strict validation**: every row is checked against a Pydantic v2 contract; failing rows are **quarantined with the reason**, never silently dropped.
 - **Healthy-baseline features**: per-sensor z-scores, deviation scores and rolling statistics that make 51 differently scaled sensors comparable.
 - **Before / after EDA**: missing values, distributions, boxplots, single-sensor and raw-versus-clean stream comparisons.
-- **Interactive dashboard**: light / dark theme, KPI cards, telemetry around failures, downloads, and a failure-risk inference page.
+- **Interactive dashboard**: light / dark theme, KPI cards, telemetry around failures, PNG / JSON / CSV downloads, and a failure-risk inference page.
 - **Persistence**: processed CSV and SQLite database of the final dataset.
 
 ## Dataset
@@ -54,7 +71,7 @@ The file has no ready-made label, and 7 failures are far too few to train on dir
 | `early_warning` *(default)* | `1` if a `BROKEN` event occurs within the next `HORIZON_MIN` minutes (default 1440 = 24 h) |
 | `abnormal_state` | `1` if the status is `BROKEN` or `RECOVERING` (easier, detects a state rather than predicting) |
 
-`machine_status` is **never** used as a model input because it defines the target.
+With the default settings, **10,087 of 220,320 records (4.58 %)** fall inside a failure window. `machine_status` is **never** used as a model input because it defines the target.
 
 ## Project Structure
 
@@ -67,6 +84,8 @@ pump_project/
 ├── README.md
 ├── app.py                  # Streamlit dashboard (entry point)
 ├── requirements.txt
+├── docs/
+│   └── screenshots/        # images used in this README
 ├── data/
 │   ├── raw/
 │   │   └── sensor.csv      # Kaggle pump dataset (loaded automatically)
@@ -104,6 +123,8 @@ pip install -r requirements.txt
 # 3. add the dataset (see below), then start the app
 streamlit run app.py
 ```
+
+Or skip the installation and use the hosted version: **<https://machine-failure-prediction-system-pumpsensor.streamlit.app/>**
 
 ### Adding the dataset
 
@@ -150,9 +171,11 @@ sensor.csv ─► Extract ─► Clean ─► Validate (Pydantic) ─► Feature
    - `deviation_roll_mean`, `deviation_roll_std`: trailing 60-minute statistics
 5. **Load** (`load.py`): writes the final table to `data/processed/clean_features.csv` and the SQLite table `pump_sensor_data`.
 
+The final table has **220,320 rows × 111 columns**: timestamp, 51 sensors, status, target, 6 engineered features and 51 z-scores.
+
 ### Demo noise ("Simulate dirty data")
 
-The real file is relatively clean apart from missing values, so the sidebar toggle corrupts a **copy** of the data (dropouts, spikes, `-999` codes, messy status text, duplicate rows) to make the before / after plots meaningful. Corruption is applied to `NORMAL` rows only; the 7 breakdowns and the recovery phases stay untouched. Turn the toggle off to see the real data only.
+The real file is relatively clean apart from missing values, so the sidebar toggle corrupts a **copy** of the data (dropouts, spikes, `-999` codes, messy status text, duplicate rows) to make the before / after plots meaningful. Corruption is applied to `NORMAL` rows only; the 7 breakdowns and the recovery phases stay untouched. Turn the toggle off to see the real data only (the screenshots below were taken with the toggle off).
 
 ## Dashboard Pages
 
@@ -162,6 +185,68 @@ The real file is relatively clean apart from missing values, so the sidebar togg
 | **Before vs After** | Missing values, distributions, boxplots, single-sensor comparison, sensor stream, summary table, plus counts of removed rows, duplicates, outliers and imputed values |
 | **Risk Inference** | Choose a historical reading (healthy baseline or 2 h before a failure), adjust the 12 most relevant sensors, and get a colour-coded failure probability |
 | **Data & Report** | Cleaning report (table, JSON, download), engineered-data preview, CSV sample download, save to CSV / SQLite, quarantined rows |
+
+### Screenshots
+
+**Dashboard**: KPI cards, live telemetry with rolling mean and failure-window breakdown.
+
+![Dashboard](docs/screenshots/01-dashboard.png)
+
+**Signal conditioning and correlation**: raw versus validated stream, and the sensors most linked to failure.
+
+![Signal conditioning and correlation](docs/screenshots/02-signal-conditioning-correlation.png)
+
+**Before vs After**: missing values, distributions and boxplots.
+
+| Missing values | Distributions |
+|---|---|
+| ![Missing values](docs/screenshots/03-missing-values.png) | ![Distributions](docs/screenshots/04-distributions.png) |
+
+![Boxplots](docs/screenshots/05-boxplots.png)
+
+| Single feature | Sensor stream |
+|---|---|
+| ![Single feature](docs/screenshots/06-single-feature.png) | ![Sensor stream](docs/screenshots/07-sensor-stream.png) |
+
+![Summary table](docs/screenshots/08-summary-table.png)
+
+**Risk Inference**: editable sensor readings, colour-coded result and model summary.
+
+![Risk inference](docs/screenshots/09-risk-inference.png)
+
+**Data & Report**: cleaning report and engineered data preview.
+
+![Data and report](docs/screenshots/10-data-report.png)
+
+## Results
+
+Figures from a run on the full Kaggle file with the default settings (`early_warning`, 24 h horizon, demo noise off).
+
+### Data pipeline
+
+| Metric | Value |
+|---|---|
+| Records in / out | 220,320 / 220,320 |
+| Duplicate rows and timestamps removed | 0 |
+| Quarantined rows | 0 |
+| Active sensors | 51 (`sensor_15` dropped, empty) |
+| Missing values imputed | 430,608 (0 remaining after cleaning) |
+| Values replaced by the outlier fence | 306,354 |
+| `BROKEN` events | 7 |
+| Records inside a failure window | 10,087 (4.58 %) |
+| Final table | 220,320 rows × 111 columns |
+
+### Baseline model
+
+| Item | Value |
+|---|---|
+| Training period | first 125,330 records |
+| Test period | last 80,513 records, from 2018-07-07 00:11, containing 2 failure events |
+| Features | 55 (51 sensors + 4 single-reading deviation features) |
+| ROC-AUC | 0.63 (0.50 = coin flip) |
+| PR-AUC | 0.04 (base rate in the test period: 0.04) |
+
+**Reading the numbers honestly:** the baseline is only slightly better than chance and its PR-AUC is about the base rate. With 7 failures in the whole file and 2 in the test set, the score is a rough indication, not a performance claim. The single-reading baseline cannot see trends, which is exactly what Phase 2 addresses (see below).
 
 ## Configuration
 
@@ -176,7 +261,6 @@ All settings live in `src/config.py`.
 | `SENTINEL_VALUES` | `[-999.0]` | Codes treated as missing readings |
 | `VALID_RANGES` | `{}` | Optional per-sensor limits, e.g. `{"sensor_04": (0, 2000)}` |
 | `IQR_MULTIPLIER` | `8.0` | Width of the outlier fence |
-| `MAX_OUTLIER_FRAC` | `0.03` | Sensors whose fence would flag more than this share of normal rows are treated as naturally heavy-tailed and left untouched |
 | `INTERP_LIMIT_MIN` | `30` | Longest gap (minutes) that is interpolated |
 | `ROLL_WINDOW` | `60` | Window for rolling features |
 | `TEST_EVENT_FRACTION` | `0.3` | Share of failure events held out for testing |
@@ -190,19 +274,34 @@ All settings live in `src/config.py`.
 - **Leakage guard:** `machine_status` is excluded; in early-warning mode the `RECOVERING` rows (days after a failure) are left out of training and testing.
 - **Event-based split:** with only 7 failures, a plain "last 20 %" split could contain none. The last ~30 % of failure *events* (from the start of their warning window onward) form the test set; there is no shuffling.
 - **Metrics:** ROC-AUC, PR-AUC, precision, recall and base rate, shown on the Risk Inference page. Prefer PR-AUC over accuracy for this imbalanced problem.
+- **Inference:** the Risk Inference page starts from a historical reading (healthy median or 2 h before a failure), lets you edit the 12 sensors most correlated with failure, recomputes the deviation features and returns a colour-coded result (green below 15 %, amber 15–30 %, red above 30 %).
 
 > **Limitations:** this is a single-reading baseline with no view of trends over time, and a test set with only a couple of failure events gives a rough indication rather than a guarantee. Full modelling (rolling / lag features, cross-validation by event, imbalance handling) belongs to Phase 2.
 
+## Limitations and Planned Improvements
+
+Phase 1 is a working, reproducible foundation. These are the known weak points and how Phase 2 will address them:
+
+| Area | Current behaviour | Planned improvement |
+|---|---|---|
+| Imputation | Long gaps are filled with the median of the same `machine_status`, which lets the label influence sensor values | Label-independent fill (forward-fill plus a missing-indicator, or training-period median) |
+| Statistics | Outlier fences, medians and the z-score baseline are computed on the whole timeline, including the test period | Fit all learned statistics on the training period only |
+| Outlier fence | 306,354 values are replaced on the real file; heavy-tailed sensors may lose genuine readings | Per-sensor review and a cap on the share of values a fence may remove |
+| Probability | The output is an uncalibrated model score shown as a percentage | Probability calibration and a cost-based alert threshold |
+| Evaluation | One split, 2 test failures | Leave-one-event-out cross-validation |
+| Validation | Pydantic runs after cleaning over 220k rows (about a minute) and rarely rejects anything | Validate the raw input, use vectorised checks for the bulk data and keep Pydantic for single-record inference |
+| Features | Single-reading features only | Rolling, lag and slope features; an unsupervised baseline (PCA / Isolation Forest) |
+
 ## Deployment
 
-The app is designed for **Streamlit Community Cloud**:
+The app is designed for **Streamlit Community Cloud** and is deployed at **<https://machine-failure-prediction-system-pumpsensor.streamlit.app/>**.
 
 1. Push the project to a GitHub repository.
 2. In Streamlit Community Cloud, create a new app from the repository with **main file** `app.py`. Dependencies are read from `requirements.txt`.
 3. Provide the dataset. `sensor.csv` (about 120 MB) exceeds GitHub's 100 MB per-file limit, so use one of:
    - **Git LFS** to store `data/raw/sensor.csv` in the repository, or
    - **kagglehub** download at first start, with Kaggle credentials stored in the app's *Secrets*.
-4. The pipeline holds a few hundred MB in memory. If the free tier runs short, run the app locally for demonstrations.
+4. The pipeline holds a few hundred MB in memory. If the free tier runs short, run the app locally for demonstrations. A sleeping free app may need a few seconds to wake up on the first visit.
 
 ## Troubleshooting
 
@@ -212,19 +311,18 @@ The app is designed for **Streamlit Community Cloud**:
 | `ImportError: cannot import name ...` from `src.*` | An old file is still in `src/`. Replace **all** files in `src/` with the current versions, delete `src/__pycache__`, and restart Streamlit. |
 | `Sensors [...] contain no valid values` | A sensor is completely empty in your copy of the data. Add it to `DEAD_SENSORS` in `config.py`. |
 | KPI numbers wrap onto two lines | In `theme.py`, set `.kpi .kpi-value` to `font-size: 1.8rem` and add `white-space: nowrap`. |
-| Very high outlier count | Check `outliers_replaced` in the report (Data & Report page). Keep `MAX_OUTLIER_FRAC` enabled or raise `IQR_MULTIPLIER`. |
+| Very high outlier count | Check `outliers_replaced` in the report (Data & Report page) and raise `IQR_MULTIPLIER` in `config.py` to widen the fence. |
 | Slow first start | Expected: validation and feature engineering over 220k rows take about a minute. The result is cached afterwards. |
 
 ## Roadmap
 
-- **Phase 1 (this repository):** ETL, validation, EDA, Streamlit dashboard, baseline risk model.
-- **Phase 2:** scikit-learn modelling: rolling / lag features, cross-validation by failure event, class-imbalance handling, model comparison.
-- **Phase 3:** deep learning with PyTorch and experiment tracking with MLflow.
+- [x] **Phase 1 (this repository):** ETL, validation, EDA, Streamlit dashboard, baseline risk model.
+- [ ] **Phase 2:** scikit-learn modelling: rolling / lag features, cross-validation by failure event, class-imbalance handling, model comparison.
+- [ ] **Phase 3:** deep learning with PyTorch and experiment tracking with MLflow.
 
 ## Team
 
-Team **NEXORA**, Artificial Intelligence, submitted to Mr. Shaban Satti
-
+Team **NEXORA**, Artificial Intelligence, submitted to Mr. Shaban Satti.
 
 ---
 
