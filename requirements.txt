@@ -1,7 +1,11 @@
-streamlit
-pandas
-numpy
-matplotlib
-scikit-learn
-pydantic>=2
-# kagglehub  # optional: auto-download of the dataset
+# --- data / ML pipeline (unchanged src/ code) ---
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+pydantic>=2.6
+matplotlib>=3.8
+kagglehub>=0.3
+
+# --- web API (replaces streamlit) ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
