@@ -1,6 +1,18 @@
+# secrets - NEVER commit
 .env
-data/
-outputs/
+.streamlit/secrets.toml
+
+# environments / caches
+venv/
+.venv/
 __pycache__/
 *.pyc
-.venv/
+.kilo/
+
+# data (sensor.csv is > 100 MB; GitHub rejects it). It is downloaded from Kaggle at first run.
+data/
+outputs/
+
+# node (old React frontend)
+node_modules/
+frontend/

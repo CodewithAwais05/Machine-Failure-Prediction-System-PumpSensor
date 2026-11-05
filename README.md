@@ -325,5 +325,3 @@ The app is designed for **Streamlit Community Cloud** and is deployed at **<http
 Team **NEXORA**, Artificial Intelligence, submitted to Mr. Shaban Satti.
 
 ---
-
-*Academic project for the Programming for AI course. Code license: see [LICENSE](LICENSE). The dataset belongs to its Kaggle author; please follow the dataset's terms of use.*

@@ -20,45 +20,59 @@ from src.config import (
 
 
 # ============================================================
-# THEME  (maroon brand palette, light + dark)
+# THEMES  (matplotlib palettes - one per dashboard theme in src/theme.py)
 # ============================================================
 
+def _palette(bg, fg, muted, grid, spine, before, after, series, warn, recover, cmap="coolwarm"):
+    return {
+        "bg": bg, "fg": fg, "muted": muted, "grid": grid, "spine": spine,
+        "before": before, "after": after, "series": series,
+        "warn": warn, "recover": recover, "cmap": cmap,
+    }
+
+
 THEMES = {
-    "light": {
-        "bg": "#FFFFFF",
-        "fg": "#1B1B22",
-        "muted": "#5E6370",
-        "grid": "#E6E8EC",
-        "spine": "#C9CDD4",
-        "before": "#A02C4D",     # raw / before
-        "after": "#2D3142",      # cleaned / after
-        "series": ["#C05A7C", "#6B1E33", "#2D3142", "#7F8489", "#D393B4"],
-        "warn": "#F3B74F",
-        "recover": "#9AA0A6",
-        "cmap": "coolwarm",
-    },
-    "dark": {
-        "bg": "#1F1B25",
-        "fg": "#ECE8F0",
-        "muted": "#A39DAE",
-        "grid": "#342E3C",
-        "spine": "#4A4354",
-        "before": "#E58BAA",
-        "after": "#8FA3D6",
-        "series": ["#E58BAA", "#B0476A", "#8FA3D6", "#9AA0A6", "#F0B6CC"],
-        "warn": "#C9962E",
-        "recover": "#6E7480",
-        "cmap": "coolwarm",
-    },
+    # ---- dark ----
+    "maroon_night": _palette(
+        "#1F1B25", "#ECE8F0", "#A39DAE", "#342E3C", "#4A4354",
+        "#E58BAA", "#8FA3D6", ["#E58BAA", "#B0476A", "#8FA3D6", "#9AA0A6", "#F0B6CC"],
+        "#C9962E", "#6E7480",
+    ),
+    "cobalt_midnight": _palette(
+        "#111A2C", "#E6EDF7", "#8FA0BC", "#22304A", "#35476A",
+        "#F59E7A", "#5BB8FF", ["#5BB8FF", "#3B82F6", "#A78BFA", "#7F8EA8", "#7DD3FC"],
+        "#E0A93B", "#6B7A94",
+    ),
+    "graphite_emerald": _palette(
+        "#161D1A", "#E6EFEA", "#8FA39A", "#26332E", "#3A4B44",
+        "#F2A65A", "#3DDC97", ["#3DDC97", "#15A07C", "#7FB8FF", "#8FA39A", "#A7F3D0"],
+        "#D9A441", "#6C7B74",
+    ),
+    # ---- light ----
+    "maroon_light": _palette(
+        "#FFFFFF", "#1B1B22", "#5E6370", "#E6E8EC", "#C9CDD4",
+        "#A02C4D", "#2D3142", ["#C05A7C", "#6B1E33", "#2D3142", "#7F8489", "#D393B4"],
+        "#F3B74F", "#9AA0A6",
+    ),
+    "arctic_light": _palette(
+        "#FFFFFF", "#0F1B2D", "#566783", "#DDE5F0", "#C3CFE0",
+        "#E4572E", "#1E4FD8", ["#2563EB", "#1E4FD8", "#0F1B2D", "#7A8BA8", "#93C5FD"],
+        "#F3B74F", "#9AA6B8",
+    ),
 }
 
-_state = {"mode": "light"}
+# old two-mode names keep working
+THEMES["dark"] = THEMES["maroon_night"]
+THEMES["light"] = THEMES["maroon_light"]
+
+_state = {"mode": "maroon_light"}
 
 
-def set_theme(mode="light"):
-    """Switch every following plot to the light or dark palette."""
+def set_theme(mode="maroon_light"):
+    """Switch every following plot to a theme palette (any key of THEMES)."""
 
-    mode = "dark" if str(mode).lower() == "dark" else "light"
+    mode = str(mode).lower()
+    mode = mode if mode in THEMES else "maroon_light"
     _state["mode"] = mode
     t = THEMES[mode]
 
@@ -90,7 +104,7 @@ def pal():
     return THEMES[_state["mode"]]
 
 
-set_theme("light")
+set_theme("maroon_light")
 
 
 # ============================================================

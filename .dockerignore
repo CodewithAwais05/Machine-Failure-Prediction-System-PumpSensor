@@ -1,8 +1,0 @@
-venv
-.git
-frontend
-__pycache__
-outputs
-data/processed
-data/maintenance.db
-.env

@@ -1,11 +1,13 @@
-# --- data / ML pipeline (unchanged src/ code) ---
+# --- data / ML pipeline (src/ code, unchanged) ---
 pandas>=2.2
 numpy>=1.26
 scikit-learn>=1.4
 pydantic>=2.6
 matplotlib>=3.8
-kagglehub>=0.3
 
-# --- web API (replaces streamlit) ---
-fastapi>=0.110
-uvicorn[standard]>=0.29
+# --- dataset download (uses KAGGLE_API_TOKEN) ---
+kagglehub>=1.0
+python-dotenv>=1.0
+
+# --- web app (replaces fastapi / uvicorn / React) ---
+streamlit>=1.50

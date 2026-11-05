@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 
@@ -17,11 +18,13 @@ from src.config import (
 
 def ensure_dataset(path=RAW_CSV) -> Path:
     """
-    Make sure the pump dataset exists in the backend (data/raw/sensor.csv).
+    Make sure the pump dataset exists (data/raw/sensor.csv).
 
     1. If the file is already there -> use it.
-    2. Otherwise try `kagglehub` (pip install kagglehub) to download it once.
-    3. Otherwise raise a clear error telling you where to put the file.
+    2. Otherwise download it ONCE from Kaggle with `kagglehub`.
+       Credentials are read from the KAGGLE_API_TOKEN environment variable
+       (local: .env file, Streamlit Cloud: Secrets).
+    3. Otherwise raise a clear error that says what went wrong.
     """
 
     path = Path(path)
@@ -29,23 +32,34 @@ def ensure_dataset(path=RAW_CSV) -> Path:
     if path.exists():
         return path
 
-    try:
-        import kagglehub
+    reason = ""
 
-        folder = Path(kagglehub.dataset_download(KAGGLE_DATASET))
+    if not (os.environ.get("KAGGLE_API_TOKEN") or os.environ.get("KAGGLE_KEY")):
+        reason = (
+            " No Kaggle credentials found: set KAGGLE_API_TOKEN in the .env file "
+            "(local) or in Streamlit Cloud > Settings > Secrets."
+        )
+    else:
+        try:
+            import kagglehub
 
-        found = next(folder.rglob("sensor.csv"), None) or next(folder.rglob("*.csv"), None)
+            folder = Path(kagglehub.dataset_download(KAGGLE_DATASET))
 
-        if found is not None:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(found, path)
-            return path
+            found = next(folder.rglob("sensor.csv"), None) or next(folder.rglob("*.csv"), None)
 
-    except Exception:
-        pass
+            if found is not None:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(found, path)
+                return path
+
+            reason = " The Kaggle download finished but contained no CSV file."
+
+        except Exception as exc:
+            reason = f" Kaggle download failed: {type(exc).__name__}: {exc}"
 
     raise FileNotFoundError(
-        f"Dataset not found at {path}. Download 'sensor.csv' from "
+        f"Dataset not found at {path}.{reason} "
+        f"You can also download 'sensor.csv' manually from "
         f"https://www.kaggle.com/datasets/{KAGGLE_DATASET} and put it in that folder."
     )
 
