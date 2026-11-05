@@ -192,6 +192,8 @@ PAGES = ["Dashboard", "Before vs After", "Risk Inference", "Data & Report"]
 
 page = st.radio("Page", PAGES, horizontal=True, label_visibility="collapsed", key="nav")
 
+theme.flow_bar(PAGES.index(page), PAGES)
+
 
 # ============================================================
 # PAGES
@@ -423,7 +425,7 @@ def page_risk():
         )
 
     with st.expander("About this model", expanded=True):
-        st.markdown(
+        theme.md(
             f"HistGradientBoosting baseline. The pump has {m['failure_events']} failure events, so the split is "
             f"by event: trained on the first {m['train_rows']:,} records, tested on the last {m['test_rows']:,} "
             f"(from {m['test_start']}, {m['test_events']} failure events)."
@@ -435,7 +437,7 @@ def page_risk():
             ("Features", f"{len(bundle['features'])}", "sensors + deviation features"),
         ])
 
-        st.markdown(
+        theme.md(
             "This is a single-reading baseline - it does not see trends over time, and with only a few failure "
             "events the test score is a rough indication, not a guarantee. `machine_status` is excluded on purpose "
             "(it defines the target), and RECOVERING rows are left out of training. Rolling/lag features and "
